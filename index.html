@@ -3,47 +3,59 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Offline Chess — Play vs Human or AI</title>
+<title>Offline Chess — Hitesh Tournament</title>
+<link rel="preconnect" href="https://fonts.gstatic.com">
 <style>
-  :root{ --bg:#0b1c33; --panel:#0f2340; --accent:#2ea3f2; --card:#0e1724; --muted:#9fb3d6;}
-  html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,system-ui,Arial;background:linear-gradient(180deg,var(--bg),#061127);color:#dde9ff}
-  .app{display:grid;grid-template-columns:360px 1fr 220px;gap:18px;padding:22px;height:100vh;box-sizing:border-box}
-  .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
-  header{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding:18px 22px;margin-bottom:6px}
-  h1{font-size:18px;margin:0}
+  /* Light, realistic theme and polished UI */
+  :root{
+    --bg:#f3f6f9; --panel:#ffffff; --muted:#6c7a86; --accent:#1f77d0;
+    --square-light:#f6f6f5; --square-dark:#cfe3f7;
+    --card-shadow: 0 8px 24px rgba(16,40,70,0.08);
+    --glass: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,252,255,0.85));
+  }
+  html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,system-ui,Arial;background:linear-gradient(180deg,#eaf2fb,#f7fafc);color:#0b2540}
+  .app{display:grid;grid-template-columns:320px 1fr 260px;gap:18px;padding:18px;height:100vh;box-sizing:border-box}
+  .card{background:var(--panel);border-radius:12px;padding:14px;box-shadow:var(--card-shadow);border:1px solid rgba(22,40,60,0.04)}
+  header{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding:12px 18px;margin-bottom:6px}
+  h1{font-size:18px;margin:0;color:#08324a}
   .controls{display:flex;gap:10px;align-items:center}
-  select,input[type=number]{padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-  button{background:var(--accent);border:none;padding:8px 12px;border-radius:8px;color:#042035;font-weight:600;cursor:pointer}
-  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-  /* board area */
+  select,input[type=number],input[type=text]{padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(11,37,64,0.06);color:var(--muted)}
+  button{background:var(--accent);border:none;padding:8px 12px;border-radius:8px;color:white;font-weight:600;cursor:pointer;box-shadow:0 6px 14px rgba(31,119,208,0.16)}
+  button.ghost{background:transparent;border:1px solid rgba(11,37,64,0.06);color:var(--muted);box-shadow:none}
+  .small{font-size:13px;color:var(--muted)}
+  /* board */
   .board-area{display:flex;flex-direction:column;align-items:center;gap:12px}
-  .board-wrap{display:flex;gap:12px}
-  .board{width:640px;height:640px;background:linear-gradient(180deg,#1b2b48,#0f1724);display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);border-radius:10px;padding:6px;box-sizing:border-box}
-  .square{position:relative;display:flex;align-items:center;justify-content:center;font-size:36px;user-select:none;border-radius:6px}
-  .square.light{background:linear-gradient(180deg,#e9f3ff22,#cfe8ff15)}
-  .square.dark{background:linear-gradient(180deg,#0b233d,#081226)}
-  .coords{position:absolute;left:6px;bottom:6px;font-size:11px;color:rgba(255,255,255,0.25)}
+  .board-wrap{display:flex;gap:12px;align-items:center}
+  .board{width:640px;height:640px;background:linear-gradient(180deg,#fff,#f0f7ff);display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);border-radius:10px;padding:6px;box-sizing:border-box;border:1px solid rgba(10,30,50,0.04)}
+  .square{position:relative;display:flex;align-items:center;justify-content:center;font-size:36px;user-select:none;border-radius:6px;transition:background .12s}
+  .square.light{background:var(--square-light)}
+  .square.dark{background:var(--square-dark)}
+  .coords{position:absolute;left:6px;bottom:6px;font-size:11px;color:rgba(11,37,64,0.25)}
   .piece{font-size:44px;cursor:pointer;transition:transform .08s ease}
   .dot{width:12px;height:12px;border-radius:50%;position:absolute;pointer-events:none;opacity:0.95;}
   .dot.capture{width:40px;height:40px;border-radius:50%;}
-  .dot.move{background:rgba(255,255,255,0.85)}
+  .dot.move{background:rgba(11,37,64,0.85)}
   .dot.capture{background:rgba(255,80,80,0.95)}
   .captured-list{display:flex;flex-wrap:wrap;gap:6px}
-  .captured-piece{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:rgba(255,255,255,0.02)}
+  .captured-piece{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:rgba(16,32,48,0.04);font-size:22px}
   .right-panel{display:flex;flex-direction:column;gap:12px}
-  .timer{font-size:20px;font-weight:700;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;text-align:center}
-  .moves{max-height:340px;overflow:auto;padding:8px;background:rgba(255,255,255,0.01);border-radius:8px}
-  .center-modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:linear-gradient(180deg,#0d2238,#071124);padding:28px;border-radius:10px;box-shadow:0 18px 40px rgba(0,0,0,0.6);display:none;z-index:999}
+  .timer{font-size:18px;font-weight:700;background:rgba(31,119,208,0.06);padding:8px;border-radius:8px;text-align:center;color:#0b2540}
+  .moves{max-height:340px;overflow:auto;padding:8px;background:transparent;border-radius:8px}
+  .center-modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--glass);padding:22px;border-radius:10px;box-shadow:0 24px 60px rgba(10,30,50,0.12);display:none;z-index:999}
   .center-modal.show{display:block}
-  .small{font-size:13px;color:var(--muted)}
-  footer{grid-column:1/-1;padding:12px 22px;display:flex;justify-content:space-between;align-items:center}
+  footer{grid-column:1/-1;padding:12px 18px;display:flex;justify-content:space-between;align-items:center}
   .flex{display:flex;gap:10px;align-items:center}
-  .settings{display:flex;flex-direction:column;gap:8px}
+  .muted{color:var(--muted)}
+  /* networking panel */
+  .network-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+  input.roomid{width:160px}
+  .status{font-size:12px;color:var(--muted);margin-top:6px}
+  @media (max-width:1100px){ .app{grid-template-columns:1fr;grid-auto-rows:auto} .board{width:90vw;height:90vw} }
 </style>
 </head>
 <body>
 <header>
-  <h1>Offline Chess — Hitesh Edition</h1>
+  <h1>Offline Chess — Tournament (Hitesh)</h1>
   <div class="controls">
     <label class="small">Difficulty
       <select id="difficulty">
@@ -59,21 +71,35 @@
     <button id="undoBtn" class="ghost">Undo</button>
   </div>
 </header>
+
 <div class="app">
   <div class="card left-panel">
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="settings">
-        <div class="small">Play Mode</div>
-        <div class="flex">
-          <label><input type="radio" name="mode" value="local" checked> Local 2-player</label>
-          <label style="margin-left:12px"><input type="radio" name="mode" value="cpu"> Play vs CPU</label>
+    <div>
+      <div class="small">Play Mode</div>
+      <div class="flex" style="margin-top:8px">
+        <label><input type="radio" name="mode" value="local" checked> Local 2-player</label>
+        <label style="margin-left:12px"><input type="radio" name="mode" value="cpu"> Play vs CPU</label>
+        <label style="margin-left:12px"><input type="radio" name="mode" value="online"> Online (room)</label>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small">Create / Join Room</div>
+        <div class="network-row">
+          <button id="createRoomBtn" class="ghost">Create Room</button>
+          <input id="roomIdInput" class="roomid" placeholder="Room id (6 chars)" />
+          <button id="joinRoomBtn" class="ghost">Join</button>
+        </div>
+        <div class="status" id="netStatus">Not connected</div>
+        <div style="margin-top:8px">
+          <button id="leaveRoomBtn" class="ghost" disabled>Leave Room</button>
         </div>
       </div>
-      <div>
+
+      <div style="margin-top:12px">
         <div class="small">Captured — White</div>
         <div id="capturedWhite" class="captured-list"></div>
       </div>
-      <div>
+      <div style="margin-top:8px">
         <div class="small">Captured — Black</div>
         <div id="capturedBlack" class="captured-list"></div>
       </div>
@@ -82,12 +108,17 @@
 
   <div class="card board-area">
     <div style="display:flex;gap:14px;align-items:center;width:100%;justify-content:space-between">
-      <div class="small">Turn: <strong id="turnText">White</strong></div>
+      <div>
+        <div class="small">Turn: <strong id="turnText">White</strong></div>
+        <div class="small muted">Mode: <span id="modeLabel">Local</span></div>
+      </div>
       <div class="small">Moves: <span id="moveCount">0</span></div>
     </div>
+
     <div class="board-wrap">
       <div id="board" class="board"></div>
     </div>
+
     <div style="display:flex;gap:8px">
       <button id="restartBtn" class="ghost">Restart</button>
       <button id="flipBtn" class="ghost">Flip Board</button>
@@ -108,16 +139,23 @@
         </div>
       </div>
     </div>
+
     <div style="margin-top:6px">
       <div class="small">Move History</div>
       <div id="moves" class="moves"></div>
     </div>
+
     <div style="margin-top:12px">
       <div class="small">Options</div>
       <div style="display:flex;gap:8px;margin-top:8px">
         <button id="toggleDots" class="ghost">Toggle Dots</button>
         <button id="takeBack" class="ghost">Take Back</button>
       </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <div class="small">Connection info</div>
+      <div class="muted" id="peerInfo">Peer: —</div>
     </div>
   </div>
 </div>
@@ -131,18 +169,19 @@
 </div>
 
 <footer>
-  <div class="small">Features: Move-dots, captured pieces, basic AI, timers, check/checkmate detection. (No castling/en-passant in this version)</div>
-  <div class="small">Save this file as <strong>offline_chess_app.html</strong> and open in a modern browser.</div>
+  <div class="small muted">Features: Move-dots, captured pieces, basic AI, timers, check/checkmate. Online rooms via WebRTC + signaling server. (No castling/en-passant yet)</div>
+  <div class="small muted">Save as <strong>offline_chess_app.html</strong>. Host this on GitHub Pages or open locally. Run the signaling server separately (instructions below).</div>
 </footer>
 
 <script>
-// --- Simple chess implementation (no castling/en-passant). Promotion auto-queen. ---
+/* ===========================
+   --- Chess logic (kept same, with small adjustments)
+   =========================== */
 const PIECES = {
   'r': '♜','n':'♞','b':'♝','q':'♛','k':'♚','p':'♟',
   'R': '♖','N':'♘','B':'♗','Q':'♕','K':'♔','P':'♙'
 };
 
-// initial board: 8x8 array, row 0 = 8th rank
 let startFEN = [
   ['r','n','b','q','k','b','n','r'],
   ['p','p','p','p','p','p','p','p'],
@@ -157,20 +196,20 @@ let startFEN = [
 let state = {
   board: JSON.parse(JSON.stringify(startFEN)),
   whiteToMove: true,
-  selected: null, // {r,c}
+  selected: null,
   dots:true,
   moveHistory: [],
   capturedWhite: [],
   capturedBlack: [],
-  flipped:false
+  flipped:false,
+  online: { inRoom:false, roomId:null, isHost:false, peerConnected:false, peerId:null }
 };
 
-// helpers
 function inBounds(r,c){return r>=0 && r<8 && c>=0 && c<8}
 function isWhitePiece(p){return !!p && p === p.toUpperCase()}
 function isBlackPiece(p){return !!p && p === p.toLowerCase()}
 
-// generate legal moves (simple: doesn't handle castling or en-passant). Ensures king not left in check.
+/* --- move generation / check / apply / undo (same as before) --- */
 function generateMoves(forWhite){
   let moves = [];
   for(let r=0;r<8;r++) for(let c=0;c<8;c++){
@@ -178,14 +217,12 @@ function generateMoves(forWhite){
     if(forWhite !== isWhitePiece(p)) continue;
     moves.push(...generatePieceMoves(r,c));
   }
-  // filter moves that leave king in check
   moves = moves.filter(m => {
     let backupFrom = state.board[m.from.r][m.from.c];
     let backupTo = state.board[m.to.r][m.to.c];
     state.board[m.to.r][m.to.c] = backupFrom;
     state.board[m.from.r][m.from.c] = '';
     const ok = !isKingInCheck(forWhite);
-    // revert
     state.board[m.from.r][m.from.c] = backupFrom;
     state.board[m.to.r][m.to.c] = backupTo;
     return ok;
@@ -197,20 +234,15 @@ function generatePieceMoves(r,c){
   const p = state.board[r][c]; if(!p) return [];
   const moves = [];
   const white = isWhitePiece(p);
-  const dir = white? -1:1; // pawn direction (white up)
-  const from = {r,c};
-  const add = (tr,tc,type) => moves.push({from,to:{r:tr,c:tc},piece:p,type:type||'move'});
-
+  const dir = white? -1:1;
+  const add = (tr,tc,type) => moves.push({from:{r,c},to:{r:tr,c:tc},piece:p,type:type||'move'});
   switch(p.toLowerCase()){
     case 'p':
-      // one forward
       if(inBounds(r+dir,c) && !state.board[r+dir][c]){ add(r+dir,c,'move');
-        // two forward from start
         if((white && r===6)||( !white && r===1)){
           if(inBounds(r+2*dir,c) && !state.board[r+2*dir][c]) add(r+2*dir,c,'move');
         }
       }
-      // captures
       for(let dc of [-1,1]){
         let tr=r+dir, tc=c+dc;
         if(inBounds(tr,tc) && state.board[tr][tc] && (white? isBlackPiece(state.board[tr][tc]):isWhitePiece(state.board[tr][tc]))){ add(tr,tc,'capture'); }
@@ -251,20 +283,16 @@ function findKing(white){
 
 function isKingInCheck(white){
   const kpos = findKing(white); if(!kpos) return true;
-  // check if any opponent move captures king
   for(let r=0;r<8;r++)for(let c=0;c<8;c++){let p=state.board[r][c]; if(!p) continue; if(white?isWhitePiece(p):isBlackPiece(p)) continue; let moves = generatePieceMoves(r,c); for(let m of moves){ if(m.to.r===kpos.r && m.to.c===kpos.c) return true; }}
   return false;
 }
 
-// apply move
 function applyMove(move){
   const f = move.from, t = move.to;
   const piece = state.board[f.r][f.c];
   const taken = state.board[t.r][t.c];
-  // promotion
   let promotion = false;
   if(piece && piece.toLowerCase()==='p' && (t.r===0 || t.r===7)){
-    // auto promote to queen of same color
     promotion = true;
     state.board[t.r][t.c] = piece === piece.toUpperCase()? 'Q':'q';
   } else {
@@ -284,19 +312,17 @@ function undoMove(){
   state.whiteToMove = !state.whiteToMove;
 }
 
-// simple evaluation
 function evaluateBoard(){
   const val = {'p':100,'n':320,'b':330,'r':500,'q':900,'k':20000};
   let score=0; for(let r=0;r<8;r++)for(let c=0;c<8;c++){let p=state.board[r][c]; if(!p) continue; const v = val[p.toLowerCase()]||0; score += isWhitePiece(p)? v : -v;}
   return score;
 }
 
-// minimax with alpha-beta
+/* minimax + pickBestMove (same) */
 function minimax(depth,alpha,beta,maximizing){
   if(depth===0) return evaluateBoard();
   const moves = generateMoves(maximizing);
-  if(moves.length===0){ // checkmate or stalemate
-    return maximizing? -999999 : 999999; }
+  if(moves.length===0){ return maximizing? -999999 : 999999; }
   if(maximizing){
     let best=-Infinity;
     for(let m of moves){
@@ -304,7 +330,6 @@ function minimax(depth,alpha,beta,maximizing){
       state.board[m.to.r][m.to.c] = a1; state.board[m.from.r][m.from.c] = '';
       state.whiteToMove = !state.whiteToMove;
       let val = minimax(depth-1,alpha,beta,false);
-      // undo
       state.whiteToMove = !state.whiteToMove;
       state.board[m.from.r][m.from.c] = a1; state.board[m.to.r][m.to.c] = b1;
       if(val>best) best=val;
@@ -332,9 +357,7 @@ function minimax(depth,alpha,beta,maximizing){
 function pickBestMove(depth){
   const moves = generateMoves(state.whiteToMove);
   if(moves.length===0) return null;
-  if(depth<=1){ // random-ish
-    return moves[Math.floor(Math.random()*moves.length)];
-  }
+  if(depth<=1) return moves[Math.floor(Math.random()*moves.length)];
   let bestMove = null;
   if(state.whiteToMove){
     let best=-Infinity;
@@ -362,7 +385,9 @@ function pickBestMove(depth){
   return bestMove;
 }
 
-// UI
+/* ===========================
+   --- UI + local interactions (kept & adapted)
+   =========================== */
 const boardEl = document.getElementById('board');
 const turnText = document.getElementById('turnText');
 const moveCountEl = document.getElementById('moveCount');
@@ -371,8 +396,11 @@ const capturedWhiteEl = document.getElementById('capturedWhite');
 const capturedBlackEl = document.getElementById('capturedBlack');
 const modal = document.getElementById('modal');
 const modalText = document.getElementById('modalText');
+const modeLabel = document.getElementById('modeLabel');
+const netStatus = document.getElementById('netStatus');
+const peerInfo = document.getElementById('peerInfo');
 
-function coordToLabel(r,c){return 'abcdefgh'[c]+(8-r);} // for coordinates
+function coordToLabel(r,c){return 'abcdefgh'[c]+(8-r);} 
 
 function render(){
   boardEl.innerHTML='';
@@ -390,8 +418,7 @@ function render(){
       boardEl.appendChild(sq);
     }
   }
-  updateCaptured(); updateMoveHistory(); updateTurn();
-  updateControlsState();
+  updateCaptured(); updateMoveHistory(); updateTurn(); updateControlsState();
 }
 
 function updateCaptured(){ capturedWhiteEl.innerHTML=''; capturedBlackEl.innerHTML='';
@@ -418,33 +445,52 @@ function pieceLetter(p){ const t = p.toLowerCase(); if(t==='p') return ''; retur
 function updateTurn(){ turnText.textContent = state.whiteToMove? 'White':'Black'; }
 
 function updateControlsState(){
-  // disable undo if no moves
   document.getElementById('undoBtn').disabled = state.moveHistory.length === 0;
   document.getElementById('takeBack').disabled = state.moveHistory.length < 2;
 }
 
-// handle clicks
+/* --- click handlers and rendering of move dots --- */
 function onSquareClick(e){
   const r=+e.currentTarget.dataset.r, c=+e.currentTarget.dataset.c;
   const p = state.board[r][c];
+  const mode = document.querySelector('input[name=mode]:checked').value;
   if(state.selected){
     const from = state.selected;
-    // compute legal once
     const legalMoves = generateMoves(state.whiteToMove);
     const legal = legalMoves.some(m=>m.from.r===from.r && m.from.c===from.c && m.to.r===r && m.to.c===c);
     if(legal){
       const move = legalMoves.find(m=>m.from.r===from.r && m.from.c===from.c && m.to.r===r && m.to.c===c);
-      applyMove(move);
-      state.selected=null; render(); afterMove(); return;
+      // If online mode and player is remote opponent, disallow move
+      if(mode==='online' && state.online.inRoom){
+        // determine which color this client is allowed to move:
+        const myColor = getLocalColor();
+        if((myColor === 'white' && !state.whiteToMove) || (myColor === 'black' && state.whiteToMove)) {
+          flashModal("Not your turn (online).", 900); state.selected = null; render(); return;
+        }
+        // send move to peer (and apply locally after send confirmation)
+        sendOnlineMove(move);
+        applyMove(move); state.selected=null; render(); afterMove(); return;
+      } else {
+        applyMove(move); state.selected=null; render(); afterMove(); return;
+      }
     }
   }
-  // select if piece of correct color
-  if(p && (state.whiteToMove === isWhitePiece(p))){ state.selected = {r,c}; renderDots(r,c); } else { state.selected = null; render(); }
+  // selection rules: allow selection in local or cpu or if it's your turn in online
+  if(p && (state.whiteToMove === isWhitePiece(p))){
+    const mode = document.querySelector('input[name=mode]:checked').value;
+    if(mode === 'online' && state.online.inRoom){
+      const myColor = getLocalColor();
+      if((myColor === 'white' && !state.whiteToMove) || (myColor === 'black' && state.whiteToMove)){
+        // can't select when it's not your color
+        flashModal("Wait for opponent's move",800); return;
+      }
+    }
+    state.selected = {r,c}; renderDots(r,c);
+  } else { state.selected = null; render(); }
 }
 
 function renderDots(fromR,fromC){ render(); if(!state.dots) return;
   const pieceMoves = generatePieceMoves(fromR,fromC).filter(m=>{
-    // ensure legal: simulate and ensure king not in check
     const cloneFrom = state.board[m.from.r][m.from.c];
     const cloneTo = state.board[m.to.r][m.to.c];
     state.board[m.to.r][m.to.c] = cloneFrom;
@@ -465,32 +511,30 @@ function renderDots(fromR,fromC){ render(); if(!state.dots) return;
 function afterMove(){
   updateCaptured(); updateMoveHistory(); checkGameEnd();
   const mode = document.querySelector('input[name=mode]:checked').value;
+  modeLabel.textContent = mode === 'online' ? 'Online' : (mode === 'cpu' ? 'vs CPU' : 'Local');
   if(mode==='cpu'){
-    // cpu plays black by default (cpuIsWhite=false). If you want CPU to be white, change this.
     const cpuIsWhite = false;
-    // If it's CPU's turn, make it move
     if(state.whiteToMove === cpuIsWhite){
       setTimeout(cpuMove, 250);
     }
   }
 }
 
+/* CPU */
 function cpuMove(){
-  // cpu plays black by default
-  const cpuIsWhite = false;
-  if(state.whiteToMove === cpuIsWhite){
-    const diff = +document.getElementById('difficulty').value;
-    let mv = null;
-    if(diff===1){ // random
-      const moves = generateMoves(state.whiteToMove);
-      if(moves.length===0) mv=null; else mv = moves[Math.floor(Math.random()*moves.length)];
-    } else {
-      mv = pickBestMove(diff);
-    }
-    if(mv) { applyMove(mv); render(); afterMove(); }
+  if(state.whiteToMove) return;
+  const diff = +document.getElementById('difficulty').value;
+  let mv = null;
+  if(diff===1){
+    const moves = generateMoves(state.whiteToMove);
+    if(moves.length===0) mv=null; else mv = moves[Math.floor(Math.random()*moves.length)];
+  } else {
+    mv = pickBestMove(diff);
   }
+  if(mv) { applyMove(mv); render(); afterMove(); }
 }
 
+/* check / end */
 function checkGameEnd(){
   const moves = generateMoves(state.whiteToMove);
   if(moves.length===0){
@@ -498,50 +542,31 @@ function checkGameEnd(){
     clearInterval(clockInterval);
     return;
   }
-  // check for check
   if(isKingInCheck(state.whiteToMove)){
     flashModal((state.whiteToMove?'White':'Black') + ' is in check',1500);
   }
 }
 
+/* modal helpers */
 function showModal(txt){ modalText.textContent = txt; modal.classList.add('show'); }
-function flashModal(txt,ms){
-  modalText.textContent = txt; modal.classList.add('show');
-  const timeout = (typeof ms === 'number' && ms>0) ? ms : 1200;
-  setTimeout(()=>modal.classList.remove('show'), timeout);
-}
+function flashModal(txt,ms){ modalText.textContent = txt; modal.classList.add('show'); setTimeout(()=>modal.classList.remove('show'), ms || 1200); }
 
-document.getElementById('modalClose').onclick = () => modal.classList.remove('show');
-document.getElementById('modalNew').onclick = ()=>{ modal.classList.remove('show'); newGame(); };
-
-function newGame(){
-  state.board = JSON.parse(JSON.stringify(startFEN));
-  state.whiteToMove=true;
-  state.selected=null;
-  state.moveHistory=[];
-  state.capturedWhite=[];
-  state.capturedBlack=[];
-  render();
-  startClocks();
-  // If CPU is white (change cpuIsWhite variable if you want), start CPU move when appropriate
-  const mode = document.querySelector('input[name=mode]:checked').value;
-  const cpuIsWhite = false; // cpu plays black by default
-  if(mode==='cpu' && state.whiteToMove === cpuIsWhite){
-    setTimeout(cpuMove, 250);
+/* new / restart / clocks */
+function newGame(){ state.board = JSON.parse(JSON.stringify(startFEN)); state.whiteToMove=true; state.selected=null; state.moveHistory=[]; state.capturedWhite=[]; state.capturedBlack=[]; render(); startClocks();
+  // if online and opponent is white, maybe wait
+  if(state.online.inRoom){
+    // If this client is not host, the host will be white by default; we keep default mapping below
+    // no extra action
   }
 }
 
-// clocks
 let whiteSeconds=300, blackSeconds=300; let clockInterval=null;
 function formatSec(s){ if(s<0) s=0; const mm = Math.floor(s/60).toString().padStart(2,'0'); const ss = (s%60).toString().padStart(2,'0'); return mm+':'+ss; }
 function startClocks(){ clearInterval(clockInterval); const mins = +document.getElementById('timeControl').value || 5; whiteSeconds = blackSeconds = Math.max(0,Math.floor(mins*60)); document.getElementById('whiteTimer').textContent = formatSec(whiteSeconds); document.getElementById('blackTimer').textContent = formatSec(blackSeconds);
-  clockInterval = setInterval(()=>{
-    if(state.whiteToMove){ whiteSeconds--; document.getElementById('whiteTimer').textContent = formatSec(whiteSeconds); } else { blackSeconds--; document.getElementById('blackTimer').textContent = formatSec(blackSeconds); }
-    if(whiteSeconds<=0||blackSeconds<=0){ clearInterval(clockInterval); showModal('Time! '+(whiteSeconds<=0?'White':'Black')+' flagged — Game over.'); }
-  },1000);
+  clockInterval = setInterval(()=>{ if(state.whiteToMove){ whiteSeconds--; document.getElementById('whiteTimer').textContent = formatSec(whiteSeconds); } else { blackSeconds--; document.getElementById('blackTimer').textContent = formatSec(blackSeconds); } if(whiteSeconds<=0||blackSeconds<=0){ clearInterval(clockInterval); showModal('Time! '+(whiteSeconds<=0?'White':'Black')+' flagged — Game over.'); } },1000);
 }
 
-// UI hooks
+/* UI hooks */
 render(); startClocks();
 document.getElementById('newBtn').onclick = ()=> newGame();
 document.getElementById('restartBtn').onclick = ()=> newGame();
@@ -549,19 +574,241 @@ document.getElementById('flipBtn').onclick = ()=>{ state.flipped = !state.flippe
 document.getElementById('toggleDots').onclick = ()=>{ state.dots = !state.dots; render(); };
 document.getElementById('undoBtn').onclick = ()=>{ undoMove(); render(); };
 document.getElementById('takeBack').onclick = ()=>{ undoMove(); undoMove(); render(); };
+document.getElementById('modalClose').onclick = () => modal.classList.remove('show');
+document.getElementById('modalNew').onclick = ()=>{ modal.classList.remove('show'); newGame(); };
 
-// start CPU if mode selected
+/* When mode radio changes: reset and show mode label */
 const modeRadios = document.querySelectorAll('input[name=mode]');
 modeRadios.forEach(r=>r.addEventListener('change', ()=>{
   newGame();
+  const mode = document.querySelector('input[name=mode]:checked').value;
+  modeLabel.textContent = mode === 'online' ? 'Online' : (mode === 'cpu' ? 'vs CPU' : 'Local');
 }));
 
-// when difficulty changed, optionally make cpu move (if cpu is to move)
-document.getElementById('difficulty').addEventListener('change', ()=>{ if(document.querySelector('input[name=mode]:checked').value === 'cpu') { setTimeout(()=>{ if(!state.whiteToMove){ cpuMove(); } },200); } });
+/* ===========================================================
+   ONLINE: WebSocket signaling + WebRTC DataChannel
+   - signaller: simple WebSocket server (see server code included)
+   - clients create/join short room ids (6 chars)
+   - host creates room -> waits, guest joins -> Establish peer connection
+   - Moves exchange over datachannel as JSON messages: {type:'move', move:...}
+   =========================================================== */
 
-// Basic: auto-prompt start
-setTimeout(()=>flashModal('Welcome! Select Play vs CPU and difficulty to play against AI. Moves shown as dots.'),600);
+/* ---------- CONFIG: point this to your signaling server (ws:// or wss://) ---------- */
+/* If you run signaling-server.js locally, use ws://localhost:3000 */
+const SIGNALING_SERVER = (location.protocol === 'https:') ? 'wss://YOUR_SERVER_DOMAIN_OR_IP:3000' : 'ws://YOUR_SERVER_DOMAIN_OR_IP:3000';
+/* Replace YOUR_SERVER_DOMAIN_OR_IP with your server address (or 'localhost' for local testing). */
 
+/* ---------- Simple WebSocket wrapper ---------- */
+let ws = null;
+function wsConnect(){
+  if(ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
+  try {
+    ws = new WebSocket(SIGNALING_SERVER);
+    ws.onopen = ()=>{ netStatus.textContent = 'Signaling connected'; console.info('ws open'); };
+    ws.onclose = ()=>{ netStatus.textContent = 'Signaling disconnected'; console.info('ws closed'); };
+    ws.onerror = (e)=>{ console.warn('ws error', e); netStatus.textContent = 'Signaling error'; };
+    ws.onmessage = (evt)=>{ try{ const msg = JSON.parse(evt.data); handleSignalingMessage(msg); }catch(e){console.warn('bad msg',evt.data);} };
+  } catch(e){ netStatus.textContent = 'Signaling init failed'; console.error(e); }
+}
+
+/* ---------- WebRTC PeerConnection and DataChannel ---------- */
+let pc = null;
+let dataChannel = null;
+let localId = null;
+let remoteId = null;
+
+const pcConfig = {
+  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+};
+
+function createPeer(isHost){
+  pc = new RTCPeerConnection(pcConfig);
+  pc.onicecandidate = (e)=>{ if(e.candidate) { sendSignal({cmd:'ice', room:state.online.roomId, candidate:e.candidate}); } };
+  pc.onconnectionstatechange = ()=>{ console.log('pc state', pc.connectionState); if(pc.connectionState === 'connected'){ state.online.peerConnected = true; updateNetUI(); } else if(pc.connectionState === 'disconnected' || pc.connectionState === 'failed'){ state.online.peerConnected = false; updateNetUI(); } };
+  pc.ondatachannel = (ev)=>{ dataChannel = ev.channel; setupDataChannel(); };
+  return pc;
+}
+
+function setupDataChannel(){
+  if(!dataChannel) return;
+  dataChannel.onopen = ()=>{ console.log('dc open'); peerInfo.textContent = 'Peer: connected'; state.online.peerConnected = true; updateNetUI(); flashModal('Peer connected',900); };
+  dataChannel.onclose = ()=>{ console.log('dc close'); peerInfo.textContent = 'Peer: disconnected'; state.online.peerConnected = false; updateNetUI(); };
+  dataChannel.onmessage = (ev)=>{ try{ const msg = JSON.parse(ev.data); handlePeerMessage(msg); }catch(e){ console.warn('bad peer msg',ev.data); } };
+}
+
+/* ---------- Signaling message handler ---------- */
+function handleSignalingMessage(msg){
+  if(!msg) return;
+  const cmd = msg.cmd;
+  if(cmd === 'created'){
+    state.online.inRoom = true; state.online.roomId = msg.room; state.online.isHost = true; netStatus.textContent = 'Room created: ' + msg.room; document.getElementById('leaveRoomBtn').disabled = false; flashModal('Room created: ' + msg.room,900);
+  } else if(cmd === 'joined'){
+    state.online.inRoom = true; state.online.roomId = msg.room; state.online.isHost = false; netStatus.textContent = 'Joined room: ' + msg.room; document.getElementById('leaveRoomBtn').disabled = false; flashModal('Joined: ' + msg.room,900);
+    // start offer/answer: guest should create peer and create datachannel?
+    // we make host create offer: so guest signals ready and host will create offer
+  } else if(cmd === 'ready'){
+    // both are now ready to negotiate
+    if(state.online.isHost){
+      // host creates peer and an outbound datachannel and creates offer
+      pc = createPeer(true);
+      dataChannel = pc.createDataChannel('chess');
+      setupDataChannel();
+      pc.createOffer().then(desc=>{
+        pc.setLocalDescription(desc);
+        sendSignal({cmd:'offer', room:state.online.roomId, sdp:desc});
+      });
+    } else {
+      // guest: wait for offer; nothing here
+    }
+  } else if(cmd === 'offer'){
+    // guest receives offer, create pc, set remote, answer
+    if(!pc) pc = createPeer(false);
+    pc.setRemoteDescription(new RTCSessionDescription(msg.sdp)).then(()=>{
+      pc.createAnswer().then(answer=>{
+        pc.setLocalDescription(answer);
+        sendSignal({cmd:'answer', room:state.online.roomId, sdp:answer});
+      });
+    });
+  } else if(cmd === 'answer'){
+    // host receives answer
+    if(pc) pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+  } else if(cmd === 'ice'){
+    if(pc && msg.candidate){
+      pc.addIceCandidate(new RTCIceCandidate(msg.candidate)).catch(e=>console.warn('ice add fail',e));
+    }
+  } else if(cmd === 'peer-left'){
+    flashModal('Peer left the room', 1000);
+    state.online.peerConnected = false;
+    updateNetUI();
+  } else if(cmd === 'error'){
+    flashModal('Signaling error: ' + (msg.msg || ''), 1500);
+  }
+}
+
+/* ---------- Send signaling message to server ---------- */
+function sendSignal(obj){
+  if(!ws || ws.readyState !== WebSocket.OPEN) { console.warn('ws not open'); return; }
+  ws.send(JSON.stringify(obj));
+}
+
+/* ---------- UI actions for creating/joining rooms ---------- */
+document.getElementById('createRoomBtn').onclick = ()=>{
+  wsConnect();
+  ws.onopen = ()=>{ sendSignal({cmd:'create_room', room:null}); };
+  // server will reply with 'created'
+};
+
+document.getElementById('joinRoomBtn').onclick = ()=>{
+  const room = (document.getElementById('roomIdInput').value || '').trim();
+  if(!room || room.length < 3){ flashModal('Enter a valid room id (3+ chars)',900); return; }
+  wsConnect();
+  ws.onopen = ()=>{ sendSignal({cmd:'join_room', room:room}); };
+};
+
+document.getElementById('leaveRoomBtn').onclick = ()=>{
+  leaveRoom();
+};
+
+/* ---------- When server reports both in room, it will broadcast 'ready' to both -> start negotiation ---------- */
+/* The signaling server included below implements this basic flow. */
+
+/* ---------- Peer message format and handling ---------- */
+function handlePeerMessage(msg){
+  if(!msg || !msg.type) return;
+  if(msg.type === 'move'){
+    // apply move from opponent
+    // When remote move arrives, apply it locally (remote is opposite color)
+    applyMove(msg.move);
+    render();
+    afterMove();
+  } else if(msg.type === 'chat'){
+    flashModal('Chat: ' + (msg.text||''), 1100);
+  } else if(msg.type === 'sync-state'){
+    // optional future: full state sync
+  }
+}
+
+/* ---------- send move to peer (datachannel or via ws fallback) ---------- */
+function sendOnlineMove(move){
+  const payload = {type:'move', move:move};
+  if(dataChannel && dataChannel.readyState === 'open'){
+    dataChannel.send(JSON.stringify(payload));
+  } else if(ws && ws.readyState === WebSocket.OPEN){
+    // fallback: send through signaling server (not recommended long-term)
+    sendSignal({cmd:'relay', room: state.online.roomId, payload});
+  } else {
+    flashModal('No connection to peer',900);
+  }
+}
+
+/* ---------- helper: get which color local player is for online mode ---------- */
+function getLocalColor(){
+  // convention: Host = white, Guest = black
+  if(!state.online.inRoom) return null;
+  return state.online.isHost ? 'white' : 'black';
+}
+
+/* ---------- leave room / cleanup ---------- */
+function leaveRoom(){
+  if(ws && ws.readyState === WebSocket.OPEN && state.online.inRoom){
+    sendSignal({cmd:'leave', room: state.online.roomId});
+  }
+  state.online.inRoom=false; state.online.roomId=null; state.online.isHost=false; state.online.peerConnected=false; state.online.peerId=null;
+  if(pc) { try{ pc.close(); }catch(e){} pc=null; }
+  if(dataChannel) try{ dataChannel.close(); }catch(e){} dataChannel=null;
+  document.getElementById('leaveRoomBtn').disabled = true;
+  netStatus.textContent = 'Left';
+  peerInfo.textContent = 'Peer: —';
+}
+
+/* ---------- update network UI ---------- */
+function updateNetUI(){
+  document.getElementById('leaveRoomBtn').disabled = !state.online.inRoom;
+  peerInfo.textContent = state.online.peerConnected ? 'Peer: connected' : 'Peer: —';
+  netStatus.textContent = state.online.inRoom ? ('Room: ' + state.online.roomId + (state.online.isHost ? ' (host)' : ' (guest)')) : 'Not connected';
+}
+
+/* ---------- handle incoming server relayed messages (if using fallback) ---------- */
+/* The server will forward 'relay' payloads to the peer. Implemented server-side. */
+
+/* ---------- minimal room lifecycle: server tells room created/joined/ready/offer/answer/ice ---------- */
+/* ---------- IMPORTANT: Replace SIGNALING_SERVER constant before using. ---------- */
+
+/* For demo local testing: you can set SIGNALING_SERVER to ws://localhost:3000 then run the server locally. */
+
+/* ===========================
+   Signaling: fallback handlers
+   =========================== */
+
+/* if ws receives 'ready' signaling we handle in handleSignalingMessage above.
+   The server will call 'ready' when 2 clients are in the room. */
+
+/* ===========================
+   WebSocket 'onmessage' handler above forwards signaling to handleSignalingMessage
+   =========================== */
+
+/* ===========================
+   Signaling server communication notes for dev (no code here)
+   - create_room -> server returns {cmd:'created', room:'ABCD12'}
+   - join_room with room -> server returns {cmd:'joined', room:'ABCD12'} (and notifies host)
+   - when both present, server sends {cmd:'ready', room} to both
+   - further messages: offer/answer/ice/relay/peer-left
+   =========================== */
+
+/* ===========================
+   Lastly: connect to WS automatically if user picks online mode
+   =========================== */
+document.querySelectorAll('input[name=mode]').forEach(r=>{
+  r.addEventListener('change', ()=>{
+    const mode = document.querySelector('input[name=mode]:checked').value;
+    if(mode === 'online'){
+      wsConnect();
+    }
+  });
+});
+
+/* quick visual welcome */
+setTimeout(()=>flashModal('Welcome! To play online: select "Online", Create Room and share Room ID with opponent.',1500), 600);
 </script>
 </body>
 </html>
